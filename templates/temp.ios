@@ -1,0 +1,74 @@
+interface GigabitEthernet2
+ ip address dhcp
+ no shutdown
+!
+crypto ikev2 proposal IKEv2-PROPOSAL
+ encryption aes-cbc-256
+ integrity sha256
+ group 14
+!
+crypto ikev2 policy IKEv2-POLICY 
+ proposal IKEv2-PROPOSAL
+!
+crypto ikev2 keyring IKEv2-KEYRING
+ peer GW1
+  address 4.225.32.210
+  pre-shared-key vpnkey123
+ peer GW2
+  address 4.225.32.211
+  pre-shared-key vpnkey123
+!
+crypto ikev2 profile IKEv2-PROFILE
+ match address local interface GigabitEthernet1
+ match identity remote address 4.225.32.210 255.255.255.255
+ match identity remote address 4.225.32.211 255.255.255.255 
+ authentication remote pre-share
+ authentication local pre-share
+ keyring local IKEv2-KEYRING
+ lifetime 28800
+ dpd 10 5 on-demand
+!
+crypto ipsec transform-set IPSEC-TRANSFORM esp-aes 256 esp-sha256-hmac 
+ mode tunnel
+!
+crypto ipsec profile IPSEC-PROFILE
+ set transform-set IPSEC-TRANSFORM 
+ set ikev2-profile IKEv2-PROFILE
+ set security-association lifetime kilobytes 102400000
+
+interface Tunnel101
+ description tunnel to gw-1
+ ip address 169.254.21.1 255.255.255.252
+ ip tcp adjust-mss 1350
+ tunnel source GigabitEthernet1
+ tunnel mode ipsec ipv4 
+ tunnel destination 4.225.32.210
+ tunnel protection ipsec profile IPSEC-PROFILE
+
+interface Tunnel102
+ description tunnel to gw-2
+ ip address 169.254.22.1 255.255.255.252
+ ip tcp adjust-mss 1350
+ tunnel source GigabitEthernet1
+ tunnel mode ipsec ipv4 
+ tunnel destination 4.225.32.211
+ tunnel protection ipsec profile IPSEC-PROFILE
+!         
+! default route pointing to outside subnet default gateway, so that tunnel outside traffic and internet go out LAN port
+ip route 0.0.0.0 0.0.0.0 GigabitEthernet1 10.10.0.1
+! route to vnet pointing to inside interface
+ip route 10.10.0.0 255.255.0.0 GigabitEthernet2 10.10.1.1
+!
+router bgp 65002
+  bgp log-neighbor-changes
+! network statement so that vnet is advertised 
+network 10.10.0.0 mask 255.255.0.0
+neighbor 169.254.21.2 remote-as 65001
+neighbor 169.254.21.2 ebgp-multihop 255
+neighbor 169.254.21.2 soft-reconfiguration inbound
+neighbor 169.254.22.2 remote-as 65001
+neighbor 169.254.22.2 ebgp-multihop 255
+neighbor 169.254.22.2 soft-reconfiguration inbound
+
+
+
