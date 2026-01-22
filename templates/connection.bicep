@@ -2,7 +2,8 @@ param vnetgwid string
 param lngid string
 param key string
 param connectionname string
-param custombgpip string
+param custombgpip1 string
+param custombgpip2 string
 
 resource connection 'Microsoft.Network/connections@2024-05-01' = {
   name: connectionname
@@ -31,6 +32,17 @@ resource connection 'Microsoft.Network/connections@2024-05-01' = {
         dhGroup: 'DHGroup14'
         pfsGroup: 'None'
       }
+    ]
+    gatewayCustomBgpIpAddresses: [
+      {
+        ipConfigurationId: '${vnetgwid}/ipConfigurations/vnetgwconfig'
+        customBgpIpAddress: custombgpip1
+      }
+      {
+        ipConfigurationId: '${vnetgwid}/ipConfigurations/vnetgwconfig2'
+        customBgpIpAddress: custombgpip2
+      }
+
     ]
   }
 }

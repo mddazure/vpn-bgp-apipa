@@ -1,9 +1,10 @@
 param remotepubip string
 param lngname string
-param localbgpasn int = 65001
-param remotebgpasn int = 65002
-param localapiparange string
-param remoteapipa string
+param gwbgpasn int = 65001
+param localbgpasn int = 65002
+param localapipa1 string
+param localapipa2 string
+param localbgppeeringaddress string
 param vpnkey string
 
 resource lng 'Microsoft.Network/localNetworkGateways@2024-05-01' = {
@@ -13,12 +14,13 @@ resource lng 'Microsoft.Network/localNetworkGateways@2024-05-01' = {
     gatewayIpAddress: remotepubip
     localNetworkAddressSpace: {
       addressPrefixes: [
-        localapiparange
+        localapipa1
+        localapipa2
       ]
     }
     bgpSettings: {
-      asn: remotebgpasn
-      bgpPeeringAddress: remoteapipa
+      asn: gwbgpasn
+      bgpPeeringAddress: localbgppeeringaddress
     }
   }
 } 

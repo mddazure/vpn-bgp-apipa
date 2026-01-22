@@ -2,8 +2,9 @@ param ck8name string
 param vnetname string
 param insideSubnetid string
 param outsideSubnetid string
+param insideIP string
+param outsideIP string
 param pubIpId string
-param udrName string
 param adminUsername string
 param adminPassword string
 param nsGId string
@@ -22,7 +23,8 @@ resource insidenic 'Microsoft.Network/networkInterfaces@2020-11-01' = {
             id: insideSubnetid
           }
           primary: true
-          privateIPAllocationMethod: 'Dynamic'
+          privateIPAllocationMethod: 'Static'
+          privateIPAddress: insideIP
         }
       }
     ]
@@ -47,7 +49,8 @@ resource outsidenic 'Microsoft.Network/networkInterfaces@2020-11-01' = {
             id: pubIpId
           }
           primary: true
-          privateIPAllocationMethod: 'Dynamic'
+          privateIPAllocationMethod: 'Static'
+          privateIPAddress: outsideIP
         }
       }
     ]
@@ -107,25 +110,4 @@ resource ck8 'Microsoft.Compute/virtualMachines@2020-06-01' = {
     }
   }
 }
-resource route1 'Microsoft.Network/routeTables/routes@2020-11-01' = {
-  name: '${udrName}/route1'
-  dependsOn: [
-    ck8
-  ]
-  properties: {
-    addressPrefix: '10.0.0.0/8'
-          nextHopType: 'VirtualAppliance'
-          nextHopIpAddress: insidenic.properties.ipConfigurations[0].properties.privateIPAddress
-        }
-}
-resource route2 'Microsoft.Network/routeTables/routes@2020-11-01' = if (udrName == 'provider-Vnet-udr') {
-  name: '${udrName}/route2'
-  dependsOn: [
-    ck8
-  ]
-  properties: {
-    addressPrefix: '40.40.40.0/30'
-          nextHopType: 'VirtualAppliance'
-          nextHopIpAddress: insidenic.properties.ipConfigurations[0].properties.privateIPAddress
-        }
-}
+

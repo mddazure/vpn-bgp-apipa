@@ -4,6 +4,8 @@ param outsideSubnetIPrange string
 param insideSubnetIPrange string
 param vmSubnetIPrange string
 param gwSubnetIPrange string = ''
+param arsSubnetIPrange string = ''
+param bastionSubnetIPrange string = ''
 param pip1Name string
 param pip2Name string
 param prefixId string
@@ -44,9 +46,6 @@ resource vmSubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = {
   name: 'vm'
   properties: {
     addressPrefix: vmSubnetIPrange
-    routeTable: {
-      id: udr.id
-    }
   }
 }
 resource gwSubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = if (gwSubnetIPrange != '') {
@@ -57,6 +56,26 @@ resource gwSubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = if (g
   name: 'GatewaySubnet'
   properties: {
     addressPrefix: gwSubnetIPrange
+  }
+}
+resource arsSubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = if (arsSubnetIPrange != '') {
+  parent: vnet
+  dependsOn: [
+    vmSubnet
+  ]
+  name: 'AzureRouteServerSubnet'
+  properties: {
+    addressPrefix: arsSubnetIPrange
+  }
+}
+resource bastionSubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = if (bastionSubnetIPrange != '') { 
+  parent: vnet
+  dependsOn: [
+    vmSubnet
+  ]
+  name: 'AzureBastionSubnet'
+  properties: {
+    addressPrefix: bastionSubnetIPrange
   }
 }
 
@@ -100,21 +119,14 @@ resource pubip2 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
    publicIPAddressVersion: 'IPv4'
   }
 }
-resource udr 'Microsoft.Network/routeTables@2020-11-01' = {
-  name: '${vnetname}-udr'
-  location: resourceGroup().location
-  properties: {
-    disableBgpRoutePropagation: false
-  }
-}
-
 output vnetName string = vnet.name
-output udrId string = udr.id
-output udrName string = udr.name
 output vnetId string = vnet.id
 output outsideSubnetId string = outsideSubnet.id
 output insideSubnetId string = insideSubnet.id
 output vmSubnetId string = vmSubnet.id
+output gwSubnetId string = gwSubnetIPrange != '' ? gwSubnet.id : ''
+output arsSubnetId string = arsSubnetIPrange != '' ? arsSubnet.id : ''
+output bastionSubnetId string = bastionSubnetIPrange != '' ? bastionSubnet.id : ''
 output pubIp1 string = pubip1.properties.ipAddress
 output pubip1Id string = pubip1.id
 output pubIp2 string = pubip2.properties.ipAddress

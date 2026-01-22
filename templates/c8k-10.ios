@@ -60,7 +60,7 @@ ip route 0.0.0.0 0.0.0.0 GigabitEthernet1 10.10.0.1
 ip route 10.10.0.0 255.255.0.0 GigabitEthernet2 10.10.1.1
 !
 router bgp 65002
-  bgp log-neighbor-changes
+bgp log-neighbor-changes
 ! network statement so that vnet is advertised 
 network 10.10.0.0 mask 255.255.0.0
 neighbor 169.254.21.2 remote-as 65001
