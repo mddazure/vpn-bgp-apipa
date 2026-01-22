@@ -1,5 +1,5 @@
 param location string = 'swedencentral'
-param rgname string = 'vpn-bgp-apipa-lab-rg2'
+param rgname string = 'vpn-bgp-apipa-lab-rg3'
 
 param customerVnetName string = 'client-Vnet'
 param customerVnetIPrange string = '10.0.0.0/16'
@@ -21,7 +21,6 @@ param providerVnetIPrange string = '10.10.0.0/16'
 param providerOutsideSubnetIPrange string = '10.10.0.0/24'
 param providerInsideSubnetIPrange string = '10.10.1.0/24'
 param providerVmSubnetIPrange string = '10.10.2.0/24'
-param bastionSubnetIPrange string = '10.10.3.0/24'
 param arsSubnetIPrange string = '10.10.4.0/24'
 param arsIP1 string = '10.10.4.4'
 param arsIP2 string = '10.10.4.5'
@@ -41,15 +40,19 @@ param c8k20outsideIP string = '10.10.0.5'
 param lng11Name string = 'lng-11'
 param gw11Apiparange string = '169.254.21.0/30'
 param c8k1Apipa1 string = '169.254.21.1'
+param c8k1Apipa1range string = '169.254.21.1/32'
 param lng12Name string = 'lng-12'
 param gw12Apiparange string = '169.254.22.0/30'
 param c8k1Apipa2 string = '169.254.22.1'
+param c8k1Apipa2range string = '169.254.22.1/32'
 param lng21Name string = 'lng-21'
 param gw21Apiparange string = '169.254.21.4/30'
 param c8k2Apipa1 string = '169.254.21.5'
+param c8k2Apipa1range string = '169.254.21.5/32'
 param lng22Name string = 'lng-22'
 param gw22Apiparange string = '169.254.22.4/30'
 param c8k2Apipa2 string = '169.254.22.5'
+param c8k2Apipa2range string = '169.254.22.5/32'
 
 param con11bgpip1 string = '169.254.21.2'
 param con11bgpip2 string = '169.254.21.6'
@@ -101,6 +104,7 @@ module providerVnet 'vnet.bicep' = {
     outsideSubnetIPrange: providerOutsideSubnetIPrange
     insideSubnetIPrange: providerInsideSubnetIPrange
     vmSubnetIPrange: providerVmSubnetIPrange
+    arsSubnetIPrange: arsSubnetIPrange
     pip1Name: providerPip1Name
     pip2Name: providerPip2Name
     prefixId: prefix.outputs.prefixId
@@ -210,8 +214,8 @@ module lng11 'lng.bicep' ={
   scope: rg   
   params: {
     lngname: lng11Name
-    localapipa1: c8k1Apipa1
-    localapipa2: c8k1Apipa2
+    localapipa1: c8k1Apipa1range
+    localapipa2: c8k1Apipa2range
     localbgppeeringaddress: c8k1Apipa1
     remotepubip: providerVnet.outputs.pubIp1
     vpnkey: vpnkey
@@ -222,8 +226,8 @@ module lng12 'lng.bicep' ={
   scope: rg   
   params: {
     lngname: lng12Name
-    localapipa1: c8k1Apipa1
-    localapipa2: c8k1Apipa2
+    localapipa1: c8k1Apipa1range
+    localapipa2: c8k1Apipa2range
     localbgppeeringaddress: c8k1Apipa2
     remotepubip: providerVnet.outputs.pubIp1
     vpnkey: vpnkey
@@ -234,8 +238,8 @@ module lng21 'lng.bicep' ={
   scope: rg   
   params: {
     lngname: lng21Name
-    localapipa1: c8k2Apipa1
-    localapipa2: c8k2Apipa2
+    localapipa1: c8k2Apipa1range
+    localapipa2: c8k2Apipa2range
     localbgppeeringaddress: c8k2Apipa1
     remotepubip: providerVnet.outputs.pubIp2
     vpnkey: vpnkey
@@ -246,8 +250,8 @@ module lng22 'lng.bicep' ={
   scope: rg   
   params: {
     lngname: lng22Name
-    localapipa1: c8k2Apipa1
-    localapipa2: c8k2Apipa2
+    localapipa1: c8k2Apipa1range
+    localapipa2: c8k2Apipa2range
     localbgppeeringaddress: c8k2Apipa2
     remotepubip: providerVnet.outputs.pubIp2
     vpnkey: vpnkey
@@ -301,24 +305,12 @@ module con22 'connection.bicep' ={
     custombgpip2: con22bgpip2
   }
 }
-module providerbastion 'bastion.bicep' = {
-  name: 'providerbastion'
-  scope: rg
-  params: {
-    bastionname: 'provider-bastion'
-    vnetId: customerVnet.outputs.vnetId
-  }
-}
-module customerbastion 'bastion.bicep' = {
-  name: 'customerbastion'
-  scope: rg
-  params: {
-    bastionname: 'customer-bastion'
-    vnetId: customerVnet.outputs.vnetId
-  }
-}
 module ars 'rs.bicep' = {
   name: 'ars'
+  dependsOn:[
+    providerC8k1
+    providerC8k2
+  ]
   scope: rg
   params: {
     c8k10asn: c8k10asn

@@ -63,7 +63,7 @@ resource arsSubnet 'Microsoft.Network/virtualNetworks/subnets@2024-05-01' = if (
   dependsOn: [
     vmSubnet
   ]
-  name: 'AzureRouteServerSubnet'
+  name: 'RouteServerSubnet'
   properties: {
     addressPrefix: arsSubnetIPrange
   }
