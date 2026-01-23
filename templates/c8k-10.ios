@@ -37,7 +37,7 @@ crypto ipsec profile IPSEC-PROFILE
  set security-association lifetime kilobytes 102400000
 
 interface Tunnel101
- description tunnel 1 to gw-1 (169.254.21.0/30)
+ description tunnel 1 to gw-1 (Instance 0) - 169.254.21.0/30
  ip address 169.254.21.1 255.255.255.255
  ip tcp adjust-mss 1350
  tunnel source GigabitEthernet1
@@ -46,12 +46,12 @@ interface Tunnel101
  tunnel protection ipsec profile IPSEC-PROFILE
 
 interface Tunnel102
- description tunnel 2 to gw-1 (169.254.22.0/30)
+ description tunnel 2 to gw-2 (Instance 1) - 169.254.22.0/30
  ip address 169.254.22.1 255.255.255.255
  ip tcp adjust-mss 1350
  tunnel source GigabitEthernet1
  tunnel mode ipsec ipv4 
- tunnel destination [gw-1-pip]
+ tunnel destination [gw-2-pip]
  tunnel protection ipsec profile IPSEC-PROFILE
 !         
 ! default route pointing to outside subnet default gateway, so that tunnel outside traffic and internet go out LAN port
@@ -60,7 +60,7 @@ ip route 0.0.0.0 0.0.0.0 GigabitEthernet1 10.10.0.1
 ip route 10.10.4.0 255.255.255.0 GigabitEthernet2 10.10.1.1
 ! routes to remote bgp endpoints pointing to tunnel interfaces
 ip route 169.254.21.2 255.255.255.255 Tunnel101
-ip route 169.254.22.2 255.255.255.255 Tunnel102
+ip route 169.254.22.6 255.255.255.255 Tunnel102
 !
 router bgp 65002
 bgp log-neighbor-changes
@@ -75,9 +75,9 @@ neighbor 169.254.21.2 remote-as 65001
 neighbor 169.254.21.2 ebgp-multihop 255
 neighbor 169.254.21.2 update-source Tunnel101
 neighbor 169.254.21.2 soft-reconfiguration inbound
-neighbor 169.254.22.2 remote-as 65001
-neighbor 169.254.22.2 ebgp-multihop 255
-neighbor 169.254.22.2 update-source Tunnel102
-neighbor 169.254.22.2 soft-reconfiguration inbound
+neighbor 169.254.22.6 remote-as 65001
+neighbor 169.254.22.6 ebgp-multihop 255
+neighbor 169.254.22.6 update-source Tunnel102
+neighbor 169.254.22.6 soft-reconfiguration inbound
 
 

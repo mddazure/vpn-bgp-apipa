@@ -1,8 +1,7 @@
 param remotepubip string
 param lngname string
 param localbgpasn int = 65002
-param c8kApipa1 string
-param c8kApipa2 string
+param c8kApipa string
 
 resource lng 'Microsoft.Network/localNetworkGateways@2024-05-01' = {
   name: lngname
@@ -11,14 +10,7 @@ resource lng 'Microsoft.Network/localNetworkGateways@2024-05-01' = {
     gatewayIpAddress: remotepubip
     bgpSettings: {
       asn: localbgpasn
-      bgpPeeringAddresses: [
-        {
-          customBgpIpAddress: c8kApipa1
-        }
-        {
-          customBgpIpAddress: c8kApipa2
-        }
-      ]
+      bgpPeeringAddress: c8kApipa
     }
   }
 } 
