@@ -7,7 +7,7 @@ This repository demonstrates how to configure an Azure Active-Active VPN Gateway
 ```
 Cisco c8k-10 (Single Public IP)          Azure VPN Gateway (Active-Active)
 ┌─────────────────────────────┐         ┌──────────────────────────────────┐
-│ Public IP: 4.225.32.208     │         │ Instance 0 (gw-1-pip)            │
+│ Public IP: a.a.a.a          │         │ Instance 0 (gw-1-pip)            │
 │                             │─────────│  • Public IP: x.x.x.x            │
 │ Tunnel101: 169.254.21.1  ───┼────────►│  • BGP IP: 169.254.21.2          │
 │ Tunnel102: 169.254.22.1  ───┼────┐    │                                  │
@@ -15,7 +15,7 @@ Cisco c8k-10 (Single Public IP)          Azure VPN Gateway (Active-Active)
                                    │    │ Instance 1 (gw-2-pip)            │
 Cisco c8k-20 (Single Public IP)    │    │  • Public IP: y.y.y.y            │
 ┌─────────────────────────────┐    │    │  • BGP IP: 169.254.22.6          │
-│ Public IP: 4.225.33.15      │    │    │                                  │
+│ Public IP: b.b.b.b          │    │    │                                  │
 │                             │────┼───►│                                  │
 │ Tunnel101: 169.254.21.5  ───┼────┘    │                                  │
 │ Tunnel102: 169.254.22.5  ───┼────────►│                                  │
@@ -71,8 +71,8 @@ Normally, Azure doesn't allow multiple connections to LNGs with the same `gatewa
 Example:
 ```bicep
 // These are seen as DIFFERENT LNGs by Azure:
-lng-11: { gatewayIpAddress: '4.225.32.208', bgpPeeringAddress: '169.254.21.1' }
-lng-12: { gatewayIpAddress: '4.225.32.208', bgpPeeringAddress: '169.254.22.1' }
+lng-11: { gatewayIpAddress: 'a.a.a.a', bgpPeeringAddress: '169.254.21.1' }
+lng-12: { gatewayIpAddress: 'a.a.a.a', bgpPeeringAddress: '169.254.22.1' }
 ```
 
 This BGP peering address differentiation is what enables the bow-tie topology with single-IP NVAs.
