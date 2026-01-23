@@ -33,6 +33,8 @@ resource connection 'Microsoft.Network/connections@2024-05-01' = {
         pfsGroup: 'None'
       }
     ]
+    useLocalAzureIpAddress: false
+    enablePrivateLinkFastPath: false
     gatewayCustomBgpIpAddresses: [
       {
         ipConfigurationId: '${vnetgwid}/ipConfigurations/vnetgwconfig'
@@ -42,7 +44,6 @@ resource connection 'Microsoft.Network/connections@2024-05-01' = {
         ipConfigurationId: '${vnetgwid}/ipConfigurations/vnetgwconfig2'
         customBgpIpAddress: custombgpip2
       }
-
     ]
   }
 }
