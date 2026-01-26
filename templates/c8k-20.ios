@@ -53,7 +53,7 @@ interface Tunnel102
  description tunnel Instance 0 
  ip address 10.100.20.2 255.255.255.255
  ip tcp adjust-mss 1350
- tunnel source GigabitEthernet3
+ tunnel source GigabitEthernet2
  tunnel mode ipsec ipv4 
  tunnel destination [gw-2-pip]
  tunnel protection ipsec profile IPSEC-PROFILE
