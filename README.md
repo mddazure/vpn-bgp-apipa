@@ -25,6 +25,7 @@ The deployment consists of a Client-VNET, holding a VNET Gateway, and a Provider
 Provider-VNET also contains Azure Route Server (ARS), which runs BGP with the NVAs. ARS inserts the routes dynamically learned by the NVAs over the VPN, into Provider-VNET's routing. This avoids the need for a UDR on the vm subnet to direct traffic to the NVAs. Client-VNET does not require ARS for this purpose as the VNET Gateway automatically inserts the route it learns into Client-VNET's routing.
 
 The NVA's each have *one* Public IP address, from which they source tunnels to *both* instance of the VNET Gateway.
+
 :point_right: this is different from the AWS arhcitecture reference above, where each AWS Gateway instance has *two* public IP addresses, and the deployment described here *cannot* be used to connect to AWS.
 
 Two Local Network Gateway objects (LNGs) are deployed, each representing one NVA instance. Then two Connection objects connect the VNET Gateway to the LNGs. In Active-Active mode, Azure VNET Gateway establishes a tunnel from each of its instances to the remote device represented by an LNG. With two remote devices, each represented by one LNG, this results in a full bow-tie of tunnels as shown in the diagram above.
