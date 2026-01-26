@@ -211,8 +211,8 @@ provider-Web1
 ```
 
 Now simulate a failure of NVA c8k-10:
-- log on the device via Serial Console
-- shut down the device's outside interface:
+- log on to the device via Serial Console
+- shut down the device's outside interface
 
 ```
 c8k-10>en
