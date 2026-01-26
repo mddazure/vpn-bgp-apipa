@@ -181,7 +181,8 @@ AzureAdmin@client-Vm:~$ curl 10.10.2.6
 provider-Web2
 ```
 Download and run a shell script to continuously call both web servers:
-`wget https://raw.githubusercontent.com/mddazure/vpn-bgp-apipa/refs/heads/main/templates/loop.sh && sudo chmod +x loop.sh && ./loop.sh`
+```
+wget https://raw.githubusercontent.com/mddazure/vpn-bgp-apipa/refs/heads/main/templates/loop.sh && sudo chmod +x loop.sh && ./loop.sh
 
 ```
 AzureAdmin@client-Vm:~$ wget https://raw.githubusercontent.com/mddazure/vpn-bgp-apipa/refs/heads/main/templates/loop.sh && sudo chmod +x loop.sh && ./loop.sh
