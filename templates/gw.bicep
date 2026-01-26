@@ -2,6 +2,10 @@ param customerVNETGWName string
 param customerPip1Id string
 param customerPip2Id string
 param customerVnetId string
+param instance0Apipa1 string
+param instance1Apipa1 string
+param instance0Apipa2 string
+param instance1Apipa2 string
 
 resource vnetgw 'Microsoft.Network/virtualNetworkGateways@2024-05-01' = {
   name: customerVNETGWName
@@ -42,13 +46,15 @@ resource vnetgw 'Microsoft.Network/virtualNetworkGateways@2024-05-01' = {
         {
           ipconfigurationId: '${az.resourceId('Microsoft.Network/virtualNetworkGateways', customerVNETGWName)}/ipConfigurations/vnetgwconfig'
           customBgpIpAddresses: [
-            '169.254.21.2'  // Instance 0: used by both c8k-10 and c8k-20 Tunnel101
+            instance0Apipa1  // Instance 0: used by both c8k-10 and c8k-20 Tunnel101
+            instance0Apipa2  // Instance 0: used by both c8k-10 and c8k-20 Tunnel201
           ]
         }
         {
           ipconfigurationId: '${az.resourceId('Microsoft.Network/virtualNetworkGateways', customerVNETGWName)}/ipConfigurations/vnetgwconfig2'
           customBgpIpAddresses: [
-            '169.254.22.6'  // Instance 1: used by both c8k-10 and c8k-20 Tunnel102
+            instance1Apipa1  // Instance 1: used by both c8k-10 and c8k-20 Tunnel102
+            instance1Apipa2  // Instance 1: used by both c8k-10 and c8k-20 Tunnel202
           ]
         }
       ]

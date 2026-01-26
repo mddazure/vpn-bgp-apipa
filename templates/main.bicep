@@ -195,6 +195,10 @@ module clientgw 'gw.bicep' = {
   customerPip1Id: customerVnet.outputs.pubip1Id
   customerPip2Id: customerVnet.outputs.pubip2Id
   customerVnetId: customerVnet.outputs.vnetId  
+  instance0Apipa1: instance0Apipa1
+  instance1Apipa1: instance1Apipa1
+  instance0Apipa2: instance0Apipa2
+  instance1Apipa2: instance1Apipa2
   }
 }
 module lngc8k10 'lng.bicep' ={

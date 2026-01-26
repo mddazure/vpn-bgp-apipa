@@ -169,6 +169,19 @@ The Configuration page shows the details of the Connection. Custom BGP Addresses
 | c8k-20 |Tunnel101 | 169.254.22.1 | Instance0 |169.254.22.2  |
 | c8k-20 |Tunnel102 | 169.254.22.1 | Instance1 |169.254.22.6  |
 
+## Test
+Log on to `client-Vm` via Serial Console in the portal.
+
+Call the web servers `provider-Web1` and `provider-Web2` at `10.10.2.5` and 10.10.2.6` via Curl. Both should respond with their names:
+
+```
+AzureAdmin@client-Vm:~$ curl 10.10.2.5
+provider-Web1
+AzureAdmin@client-Vm:~$ curl 10.10.2.6
+provider-Web2
+```
+Now create a shell script 
+
 
 
 
