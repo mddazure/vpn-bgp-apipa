@@ -12,7 +12,8 @@ param customerVmName string = 'client-Vm'
 param customerVNETGWName string = 'client-Vnet-gw'
 param customerPip1Name string = 'gw-1-pip'
 param customerPip2Name string = 'gw-2-pip'
-param customervMprivateip string = '10.0.2.4'
+param customerPip3Name string = 'client-Vm-pip'
+param customerVmprivateip string = '10.0.2.4'
 
 param providerVnetName string = 'provider-Vnet'
 param providerVnetIPrange string = '10.10.0.0/16'
@@ -78,6 +79,7 @@ module customerVnet 'vnet.bicep' = {
     prefixId: prefix.outputs.prefixId
     pip1Name: customerPip1Name
     pip2Name: customerPip2Name
+    pip3Name: customerPip3Name
   }
 }
 module providerVnet 'vnet.bicep' = {
@@ -111,7 +113,8 @@ module customerVm 'vm.bicep' = {
   params: {
     vmname: customerVmName
     subnetId: customerVnet.outputs.vmSubnetId
-    vmprivateip: customervMprivateip
+    vmprivateip: customerVmprivateip
+    vmpublicipid: customerVnet.outputs.pubip3Id
     adminUsername: adminUsername
     adminPassword: adminPassword
   }
