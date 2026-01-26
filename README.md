@@ -185,6 +185,8 @@ Download and run a shell script to continuously call both web servers:
 wget https://raw.githubusercontent.com/mddazure/vpn-bgp-apipa/refs/heads/main/templates/loop.sh && sudo chmod +x loop.sh && ./loop.sh
 
 ```
+
+```
 AzureAdmin@client-Vm:~$ wget https://raw.githubusercontent.com/mddazure/vpn-bgp-apipa/refs/heads/main/templates/loop.sh && sudo chmod +x loop.sh && ./loop.sh
 --2026-01-26 13:17:31--  https://raw.githubusercontent.com/mddazure/vpn-bgp-apipa/refs/heads/main/templates/loop.sh
 Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 185.199.108.133, 185.199.109.133, 185.199.110.133, ...
@@ -207,10 +209,13 @@ provider-Web1
 provider-Web2
 provider-Web1
 ```
+
 Now simulate a failure of NVA c8k-10:
 - log on the device via Serial Console
 - shut down the device's outside interface:
-  ```c8k-10>en
+
+```
+c8k-10>en
 c8k-10#conf t
 Enter configuration commands, one per line.  End with CNTL/Z.
 c8k-10(config)#int gig1
@@ -223,7 +228,11 @@ c8k-10(config-if)#
 *Jan 26 13:39:51.417: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet1, changed state to down
 c8k-10#
 ```
-This will bring down the tunnels from c8k-10 to both instances of the VNET Gateway. Depending via which NVA traffic was being routed, this may interrupt the flow between client-Vm and the web servers. BGP will eventually detect the outage and reconverge via the alternate path, when its holddown timer expires. This is the time a BGP router will wait for a keepalive message from its peer,  before considering the connection down and reconverging to an alternative path. The default is set to 180 seconds, and connectivity may be interrupted for this time.
+
+This will bring down the tunnels from c8k-10 to both instances of the VNET Gateway. Depending on via which NVA traffic was being routed, this may interrupt the flow between client-Vm and the web servers. 
+
+BGP will eventually detect the outage and reconverge via the alternate path, when its holddown timer expires. This is the time a BGP router will wait for a keepalive message from its peer,  before considering the connection down and reconverging to an alternative path. The default is set to 180 seconds, and connectivity may be interrupted for this time.
+
 In some BGP applications, such as Expresroute, Bidirectional Forward Detection (BFD) is used to detect link failures and reconverge within seconds. BFD is not supported for Site-to-Site (S2S) VPN connections with BGP. This is because S2S VPNs traverse the public internet, where packet delay or occasional loss is normal. Using aggressive BFD timers in such environments can cause instability, leading to route flapping.
 
 
