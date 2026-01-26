@@ -20,7 +20,6 @@ crypto ikev2 keyring IKEv2-KEYRING
 !
 crypto ikev2 profile IKEv2-PROFILE
  match address local interface GigabitEthernet1
- match address local interface GigabitEthernet3
  match identity remote address [gw-1-pip] 255.255.255.255
  match identity remote address [gw-2-pip] 255.255.255.255 
  authentication remote pre-share
@@ -51,9 +50,9 @@ interface Tunnel101
 
 interface Tunnel102
  description tunnel Instance 1
- ip address 10.100.10.1 255.255.255.255
+ ip address 10.100.10.2 255.255.255.255
  ip tcp adjust-mss 1350
- tunnel source GigabitEthernet2
+ tunnel source GigabitEthernet1
  tunnel mode ipsec ipv4 
  tunnel destination [gw-2-pip]
  tunnel protection ipsec profile IPSEC-PROFILE
