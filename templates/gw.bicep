@@ -42,19 +42,17 @@ resource vnetgw 'Microsoft.Network/virtualNetworkGateways@2024-05-01' = {
         {
           ipconfigurationId: '${az.resourceId('Microsoft.Network/virtualNetworkGateways', customerVNETGWName)}/ipConfigurations/vnetgwconfig'
           customBgpIpAddresses: [
-            '169.254.21.2'
-            '169.254.22.2'
+            '169.254.21.2'  // Instance 0: used by both c8k-10 and c8k-20 Tunnel101
           ]
         }
-                {
+        {
           ipconfigurationId: '${az.resourceId('Microsoft.Network/virtualNetworkGateways', customerVNETGWName)}/ipConfigurations/vnetgwconfig2'
           customBgpIpAddresses: [
-            '169.254.21.6'
-            '169.254.22.6'
+            '169.254.22.6'  // Instance 1: used by both c8k-10 and c8k-20 Tunnel102
           ]
         }
       ]
-  }
+    }
     activeActive: true
     sku: {
       name: 'VpnGw1Az'

@@ -22,7 +22,7 @@ resource nsg  'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
             customerPip2
             providerPip1
             providerPip2
-          ]                  
+          ]                 
           destinationAddressPrefix: '*'
         }
       }

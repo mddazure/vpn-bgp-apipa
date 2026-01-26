@@ -1,5 +1,5 @@
 param location string = 'swedencentral'
-param rgname string = 'vpn-bgp-apipa-lab-rg4'
+param rgname string = 'vpn-bgp-apipa-lab-rg2'
 
 param customerVnetName string = 'client-Vnet'
 param customerVnetIPrange string = '10.0.0.0/16'
@@ -37,23 +37,13 @@ param c8k20insideIP string = '10.10.1.5'
 param c8k10outsideIP string = '10.10.0.4'
 param c8k20outsideIP string = '10.10.0.5'
 
-param lng11Name string = 'lng-11'
-param c8k1Apipa1 string = '169.254.21.1'
-param lng12Name string = 'lng-12'
-param c8k1Apipa2 string = '169.254.22.1'
-param lng21Name string = 'lng-21'
-param c8k2Apipa1 string = '169.254.21.5'
-param lng22Name string = 'lng-22'
-param c8k2Apipa2 string = '169.254.22.5'
+param c8k10Apipa string = '169.254.21.1' // loopback0 on c8k-10 = bgp neighbor update source
+param c8k20Apipa string = '169.254.22.1' // loopback0 on c8k-20 = bgp neighbor update source
 
-param con11bgpip1 string = '169.254.21.2'  // Instance 0 for c8k-10 tunnel 1
-param con11bgpip2 string = '169.254.21.6'  // Not used
-param con12bgpip1 string = '169.254.22.2'  // Not used
-param con12bgpip2 string = '169.254.22.6'  // Instance 1 for c8k-10 tunnel 2
-param con21bgpip1 string = '169.254.21.2'  // Instance 0 for c8k-20 tunnel 1
-param con21bgpip2 string = '169.254.21.6'  // Not used
-param con22bgpip1 string = '169.254.22.2'  // Not used
-param con22bgpip2 string = '169.254.22.6'  // Instance 1 for c8k-20 tunnel 2
+param instance0Apipa1 string = '169.254.21.2'  // Gateway Instance 0 IP
+param instance0Apipa2 string = '169.254.22.2'  // Gateway Instance 1 IP
+param instance1Apipa1 string = '169.254.21.6'  // Gateway Instance 0 IP
+param instance1Apipa2 string = '169.254.22.6'  // Gateway Instance 1 IP
 
 param adminUsername string = 'AzureAdmin'
 @secure()
@@ -201,92 +191,50 @@ module clientgw 'gw.bicep' = {
   customerVnetId: customerVnet.outputs.vnetId  
   }
 }
-module lng11 'lng.bicep' ={
-  name: 'lng11'
+module lngc8k10 'lng.bicep' ={
+  name: 'lng-c8k-10'
   scope: rg   
   params: {
-    lngname: lng11Name
+    lngname: 'lng-c8k-10'
     localbgpasn: c8k10asn
-    c8kApipa: c8k1Apipa1
+    c8kApipa: c8k10Apipa
     remotepubip: providerVnet.outputs.pubIp1
   }
 }
-module lng12 'lng.bicep' ={
-  name: 'lng12'
+module lngc8k20 'lng.bicep' ={
+  name: 'lng-c8k-20'
   scope: rg   
   params: {
-    lngname: lng12Name
-    localbgpasn: c8k10asn
-    c8kApipa: c8k1Apipa2
-    remotepubip: providerVnet.outputs.pubIp1
-  }
-}
-module lng21 'lng.bicep' ={
-  name: 'lng21'
-  scope: rg   
-  params: {
-    lngname: lng21Name
+    lngname: 'lng-c8k-20'
     localbgpasn: c8k20asn
-    c8kApipa: c8k2Apipa1
+    c8kApipa: c8k20Apipa
     remotepubip: providerVnet.outputs.pubIp2
   }
 }
-module lng22 'lng.bicep' ={
-  name: 'lng22'
+module conc8k10 'connection.bicep' ={
+  // connection from both instances of VPN GW to c8k-10 (represented by lngc8k10)
+  name: 'con-c8k-10'
   scope: rg   
   params: {
-    lngname: lng22Name
-    localbgpasn: c8k20asn
-    c8kApipa: c8k2Apipa2
-    remotepubip: providerVnet.outputs.pubIp2
+    connectionname: 'con-c8k-10'
+    vnetgwid: clientgw.outputs.vnetgwId
+    lngid: lngc8k10.outputs.lngid
+    key: vpnkey
+    custombgpip1: instance0Apipa1
+    custombgpip2: instance1Apipa1
   }
 }
-module con11 'connection.bicep' ={
-  name: 'con11'
+module conc8k20 'connection.bicep' ={
+  // connection from both instances of VPN GW to c8k-20 (represented by lngc8k20)
+  name: 'con-c8k-20'
   scope: rg   
   params: {
-    connectionname: 'con-11'
+    connectionname: 'con-c8k-20'
     vnetgwid: clientgw.outputs.vnetgwId
-    lngid: lng11.outputs.lngid
+    lngid: lngc8k20.outputs.lngid
     key: vpnkey
-    custombgpip1: con11bgpip1
-    custombgpip2: con11bgpip2
-  }
-}
-module con12 'connection.bicep' ={
-  name: 'con12'
-  scope: rg   
-  params: {
-    connectionname: 'con-12'
-    vnetgwid: clientgw.outputs.vnetgwId
-    lngid: lng12.outputs.lngid
-    key: vpnkey
-    custombgpip1: con12bgpip1
-    custombgpip2: con12bgpip2
-  }
-}
-module con21 'connection.bicep' ={
-  name: 'con21'
-  scope: rg   
-  params: {
-    connectionname: 'con-21'
-    vnetgwid: clientgw.outputs.vnetgwId
-    lngid: lng21.outputs.lngid
-    key: vpnkey
-    custombgpip1: con21bgpip1
-    custombgpip2: con21bgpip2
-  }
-}
-module con22 'connection.bicep' ={
-  name: 'con22'
-  scope: rg   
-  params: {
-    connectionname: 'con-22'
-    vnetgwid: clientgw.outputs.vnetgwId
-    lngid: lng22.outputs.lngid
-    key: vpnkey
-    custombgpip1: con22bgpip1
-    custombgpip2: con22bgpip2
+    custombgpip1: instance0Apipa2
+    custombgpip2: instance1Apipa2
   }
 }
 module ars 'rs.bicep' = {

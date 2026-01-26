@@ -8,6 +8,8 @@ param arsSubnetIPrange string = ''
 param bastionSubnetIPrange string = ''
 param pip1Name string
 param pip2Name string
+param pip3Name string = ''
+param pip4Name string = ''
 param prefixId string
 
 resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
@@ -119,6 +121,46 @@ resource pubip2 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
    publicIPAddressVersion: 'IPv4'
   }
 }
+resource pubip3 'Microsoft.Network/publicIPAddresses@2020-11-01' = if (pip3Name != '') {
+  name: pip3Name
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard'
+    tier: 'Regional'    
+  }
+  zones: [
+    '1'
+    '2'
+    '3'
+  ]
+  properties: {
+  publicIPPrefix: {
+      id: prefixId
+    }
+   publicIPAllocationMethod: 'Static'
+   publicIPAddressVersion: 'IPv4'
+  }
+}
+resource pubip4 'Microsoft.Network/publicIPAddresses@2020-11-01' = if (pip4Name != '') {
+  name: pip4Name
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard'
+    tier: 'Regional'    
+  }
+  zones: [
+    '1'
+    '2'
+    '3'
+  ]
+  properties: {
+  publicIPPrefix: {
+      id: prefixId
+    }
+   publicIPAllocationMethod: 'Static'
+   publicIPAddressVersion: 'IPv4'
+  }
+}
 output vnetName string = vnet.name
 output vnetId string = vnet.id
 output outsideSubnetId string = outsideSubnet.id
@@ -131,3 +173,7 @@ output pubIp1 string = pubip1.properties.ipAddress
 output pubip1Id string = pubip1.id
 output pubIp2 string = pubip2.properties.ipAddress
 output pubip2Id string = pubip2.id
+output pubIp3 string = pip3Name != '' ? pubip3.properties.ipAddress : ''
+output pubip3Id string = pip3Name != '' ? pubip3.id : ''
+output pubIp4 string = pip4Name != '' ? pubip4.properties.ipAddress : ''
+output pubip4Id string = pip4Name != '' ? pubip4.id : ''
