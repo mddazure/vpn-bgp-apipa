@@ -160,7 +160,8 @@ The Overview page shows that this Connection links `client-Vnet-gw` with `lng-c8
 
 The Authentication page contains the Shared Key for the VPN connection. This must be identical to the key configured on the NVAs in the `crypto ikev2 keyring ...` section of the ios configuration.
 
-The Configuration page shows the details of the Connection. 
+The Configuration page shows the details of the Connection. Note that we are using Custom IKE and IPSec policies. These policies must be mirrored exactly on the NVA's, and Azure's Default settings include parameters that are no longer supported in Cisco IOS. The Custom settings used here are supported on the Cisco devices.
+
 ![image](/images/con-c8k-10-config.png)
 
 Custom BGP Addresses contains the APIPA BGP addresses of both instances of the VNET Gateway. Connection `con-c8k-10` holds the first APIPA address of each instance, `con-c8k-20` the second address. This matches the configuration on the NVAs - `c8k-10` has neighbor relationship from it loopback0 interface to the first gateway instance APIPA addresses, `c8k-20` to the second.
