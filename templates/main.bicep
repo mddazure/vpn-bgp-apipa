@@ -1,5 +1,5 @@
 param location string = 'swedencentral'
-param rgname string = 'vpn-bgp-apipa-lab-rg2'
+param rgname string = 'vpn-bgp-apipa-lab-rg'
 
 param customerVnetName string = 'client-Vnet'
 param customerVnetIPrange string = '10.0.0.0/16'
@@ -9,12 +9,10 @@ param customerVmSubnetIPrange string = '10.0.2.0/24'
 param customerGwSubnetIPrange string = '10.0.3.0/24'
 
 param customerVmName string = 'client-Vm'
-param clientWeb1Name string = 'client-Web1'
-param clientWeb2Name string = 'client-Web2'
-
 param customerVNETGWName string = 'client-Vnet-gw'
 param customerPip1Name string = 'gw-1-pip'
 param customerPip2Name string = 'gw-2-pip'
+param customervMprivateip string = '10.0.2.4'
 
 param providerVnetName string = 'provider-Vnet'
 param providerVnetIPrange string = '10.10.0.0/16'
@@ -26,6 +24,8 @@ param arsIP1 string = '10.10.4.4'
 param arsIP2 string = '10.10.4.5'
 
 param providerVmName string = 'provider-Vm'
+param providerWeb1Name string = 'provider-Web1'
+param providerWeb2Name string = 'provider-Web2'
 param providerC8k1Name string = 'c8k-10'
 param providerC8k2Name string = 'c8k-20'
 param providerPip1Name string = 'c8k-1-pip'
@@ -36,6 +36,9 @@ param c8k10insideIP string = '10.10.1.4'
 param c8k20insideIP string = '10.10.1.5'
 param c8k10outsideIP string = '10.10.0.4'
 param c8k20outsideIP string = '10.10.0.5'
+param providerVmprivateip string = '10.10.2.4'
+param providerWeb1privateip string = '10.10.2.5'
+param providerWeb2privateip string = '10.10.2.6'
 
 param c8k10Apipa string = '169.254.21.1' // loopback0 on c8k-10 = bgp neighbor update source
 param c8k20Apipa string = '169.254.22.1' // loopback0 on c8k-20 = bgp neighbor update source
@@ -108,32 +111,7 @@ module customerVm 'vm.bicep' = {
   params: {
     vmname: customerVmName
     subnetId: customerVnet.outputs.vmSubnetId
-    adminUsername: adminUsername
-    adminPassword: adminPassword
-  }
-}
-module clientWeb1 'vm-web.bicep' = {
-  name: 'clientWeb1'
-  scope: rg
-  dependsOn: [
-    customerVm
-  ]
-  params: {
-    vmname: clientWeb1Name
-    subnetId: customerVnet.outputs.vmSubnetId
-    adminUsername: adminUsername
-    adminPassword: adminPassword
-  }
-}
-module clientWeb2 'vm-web.bicep' = {
-  name: 'clientWeb2'
-  scope: rg
-  dependsOn: [
-    clientWeb1
-  ]
-  params: {
-    vmname: clientWeb2Name
-    subnetId: customerVnet.outputs.vmSubnetId
+    vmprivateip: customervMprivateip
     adminUsername: adminUsername
     adminPassword: adminPassword
   }
@@ -144,12 +122,40 @@ module providerVm 'vm.bicep' = {
   params: {
     vmname: providerVmName
     subnetId: providerVnet.outputs.vmSubnetId
+    vmprivateip: providerVmprivateip
     adminUsername: adminUsername
     adminPassword: adminPassword
   }
 }
-
-module providerC8k1 'c8k.bicep' = {
+module providerWeb1 'vm-web.bicep' = {
+  name: 'providerWeb1'
+  scope: rg
+  dependsOn: [
+    providerVm
+  ]
+  params: {
+    vmname: providerWeb1Name
+    subnetId: providerVnet.outputs.vmSubnetId
+    vmprivateip: providerWeb1privateip
+    adminUsername: adminUsername
+    adminPassword: adminPassword
+  }
+}
+module providerWeb2 'vm-web.bicep' = {
+  name: 'providerWeb2'
+  scope: rg
+  dependsOn: [
+    providerWeb1
+  ]
+  params: {
+    vmname: providerWeb2Name
+    subnetId: providerVnet.outputs.vmSubnetId
+    vmprivateip: providerWeb2privateip
+    adminUsername: adminUsername
+    adminPassword: adminPassword
+  }
+}
+  module providerC8k1 'c8k.bicep' = {
   name: 'providerC8k-1'
   scope: rg
   params: {

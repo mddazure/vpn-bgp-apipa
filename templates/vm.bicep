@@ -1,6 +1,7 @@
 param vmname string
 param subnetId string
 param adminUsername string
+param vmprivateip string = ''
 param adminPassword string
 
 resource nic 'Microsoft.Network/networkInterfaces@2020-11-01' = {
@@ -14,7 +15,8 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-11-01' = {
           subnet: {
             id: subnetId
           }
-          privateIPAllocationMethod: 'Dynamic'
+          privateIPAllocationMethod: empty(vmprivateip) ? 'Dynamic' : 'Static'
+          privateIPAddress: empty(vmprivateip) ? null : vmprivateip
         }
       }
     ]
