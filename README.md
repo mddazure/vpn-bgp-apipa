@@ -3,16 +3,16 @@
 This article describes the deployment of a [dual-redundant S2S VPN connection](https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-highlyavailable#dual-redundancy-active-active-vpn-gateways-for-both-azure-and-on-premises-networks) between an Azure VNET Gateway in Active-Active mode, and a pair of Cisco 8000v Network Virtual Appliances in a VNET simulating an on-premise location. The VPN connection is dynamically routed through BGP as described in 
 [About BGP and VPN Gateway](https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-bgp-overview), with the BGP sessions using IP addresses from the APIPA (Automatic Private IP Addressing) range.
 
-APIPA is a mechanism used by Windows, macOS, Linux, and network devices to automatically assign an IP address when no DHCP server is available. The APIPA address range use is 169.254.0.0/16, as defined in RFC 3927 “Dynamic Configuration of IPv4 Link-Local Addresses”. APIPA addresses are *local* to their Layer 2 segment ((V)LAN or point-to-point link) and are *not routable* across subnets.
+APIPA is a mechanism used by Windows, macOS, Linux, and network devices to automatically assign an IP address when no DHCP server is available. The APIPA address range is 169.254.0.0/16, as defined in RFC 3927 “Dynamic Configuration of IPv4 Link-Local Addresses”. APIPA addresses are *local* to their Layer 2 segment ((V)LAN or point-to-point link) and are *not routable* across subnets.
 
-APIPA addresses are commonly used for in VPNs for following for these reasons:
+APIPA addresses are commonly used for in VPNs for these reasons:
 - Avoids the need for "real" IP space for internal plumbing of the network
 - BGP peer IPs only need to be reachable over the tunnel—not globally routable
-- APIPA ensures the IPs never conflict with real networks
+- Using the APIPA range ensures BGP neighbor addresses never conflict with real networks
 
 Azure VNET Gateway supports the use of APIPA addresses for BGP over S2S VPN. Gateways use their instance-level IP addresses (from the GatewaySubnet) for BGP by default, but can be configured to use APIPA addresses from the 169.254.21.0 to 169.254.22.255 range.
 
-:point_right: Azure VNET Gateway does not support the entire APIPA range of 169.254.0.0/16, instance Custom BGP addresses must be taken from the 169.254.21.0 to 169.254.22.255 range.
+:point_right: Azure VNET Gateway does not support the entire APIPA range of 169.254.0.0/16, Custom BGP addresses must be taken from the 169.254.21.0 to 169.254.22.255 range.
 
 VPN connections between Azure and Amazon Web Services (AWS) *must* use APIPA addresses for BGP - this is a requirement from AWS, as described in [How to connect AWS and Azure using a BGP-enabled VPN gateway](https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-aws-bgp).
 
@@ -26,7 +26,7 @@ Provider-VNET also contains Azure Route Server (ARS), which runs BGP with the NV
 
 The NVA's each have *one* Public IP address, from which they source tunnels to *both* instance of the VNET Gateway.
 
-:point_right: this is different from the AWS VPN connectition architecture referenced above, where each AWS Gateway instance has *two* public IP addresses, and the deployment described here *cannot* be used to connect to AWS. 
+:point_right: This is different from the AWS VPN connectition architecture referenced above, where each AWS Gateway instance has *two* public IP addresses, and the deployment described here *cannot* be used to connect to AWS. 
 
 Two Local Network Gateway objects (LNGs) are deployed, each representing one NVA instance. Then two Connection objects connect the VNET Gateway to the LNGs. In Active-Active mode, Azure VNET Gateway establishes a tunnel from each of its instances to the remote device represented by an LNG. With two remote devices, each represented by one LNG, this results in a full bow-tie of tunnels as shown in the diagram above.
 
@@ -160,7 +160,10 @@ The Overview page shows that this Connection links `client-Vnet-gw` with `lng-c8
 
 The Authentication page contains the Shared Key for the VPN connection. This must be identical to the key configured on the NVAs in the `crypto ikev2 keyring ...` section of the ios configuration.
 
-The Configuration page shows the details of the Connection. Custom BGP Addresses contains the APIPA BGP addresses of both instances of the VNET Gateway. Connection `con-c8k-10` holds the first APIPA address of each instance, `con-c8k-20` the second address. This matches the configuration on the NVAs - `c8k-10` has neighbor relationship from it loopback0 interface to the first gateway instance APIPA addresses, `c8k-20` to the second.
+The Configuration page shows the details of the Connection. 
+![image](/images/con-c8k-10-config.png)
+
+Custom BGP Addresses contains the APIPA BGP addresses of both instances of the VNET Gateway. Connection `con-c8k-10` holds the first APIPA address of each instance, `con-c8k-20` the second address. This matches the configuration on the NVAs - `c8k-10` has neighbor relationship from it loopback0 interface to the first gateway instance APIPA addresses, `c8k-20` to the second.
 
 | NVA    |Tunnel    | NVA BGP IP   | Gateway   |Gateway BGP IP|
 |--------|----------|--------------|-----------|--------------|
