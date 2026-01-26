@@ -255,3 +255,5 @@ module ars 'rs.bicep' = {
     arsIP2: arsIP2
   }
 }
+output clientgwvnetgwIp1 string = clientgw.outputs.vnetgwIp1
+output clientgwvnetgwIp2 string = clientgw.outputs.vnetgwIp2

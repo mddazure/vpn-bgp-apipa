@@ -61,5 +61,7 @@ resource vnetgw 'Microsoft.Network/virtualNetworkGateways@2024-05-01' = {
   }
 }
 output vnetgwId string = vnetgw.id
+output vnetgwIp1 string = vnetgw.properties.ipConfigurations[0].properties.publicIPAddress.id
+output vnetgwIp2 string = vnetgw.properties.ipConfigurations[1].properties.publicIPAddress.id
 
 
