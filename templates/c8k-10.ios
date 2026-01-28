@@ -1,6 +1,11 @@
-interface GigabitEthernet2
+interface GigabitEthernet1
+ description first outside interface
  ip address dhcp
  no shutdown
+!
+interface GigabitEthernet2
+ description inside interface
+ip address dhcp no shutdown
 !
 crypto ikev2 proposal IKEv2-PROPOSAL
  encryption aes-cbc-256
@@ -36,11 +41,8 @@ crypto ipsec profile IPSEC-PROFILE
  set ikev2-profile IKEv2-PROFILE
  set security-association lifetime kilobytes 102400000
 !
-interface Loopback0
- ip address 169.254.21.1 255.255.255.255
-!
 interface Tunnel101
- description tunnel Instance 0
+ description tunnel to Instance 0 - sourced from outside interface / public ip GigabitEthernet1
  ip address 10.100.10.1 255.255.255.255
  ip tcp adjust-mss 1350
  tunnel source GigabitEthernet1
@@ -49,21 +51,22 @@ interface Tunnel101
  tunnel protection ipsec profile IPSEC-PROFILE
 
 interface Tunnel102
- description tunnel Instance 1
+ description tunnel to Instance 1 - sourced from outside interface / public ip GigabitEthernet3
  ip address 10.100.10.2 255.255.255.255
  ip tcp adjust-mss 1350
- tunnel source GigabitEthernet1
+ tunnel source GigabitEthernet3
  tunnel mode ipsec ipv4 
  tunnel destination [gw-2-pip]
  tunnel protection ipsec profile IPSEC-PROFILE
 !         
+interface Loopback0
+ ip address 169.254.21.1 255.255.255.255
+!
 ! default route pointing to outside subnet default gateway, so that tunnel outside traffic and internet go out LAN port
 ip route 0.0.0.0 0.0.0.0 GigabitEthernet1 10.10.0.1
 ! route to ars subnet pointing to inside interface
 ip route 10.10.4.0 255.255.255.0 GigabitEthernet2 10.10.1.1
 ! routes to remote bgp endpoints pointing to tunnel interfaces
-ip route 169.254.21.2 255.255.255.255 Tunnel101
-ip route 169.254.21.6 255.255.255.255 Tunnel102
 !
 router bgp 65002
 bgp log-neighbor-changes
@@ -74,13 +77,13 @@ neighbor 10.10.4.4 ebgp-multihop 255
 neighbor 10.10.4.5 remote-as 65515
 neighbor 10.10.4.5 ebgp-multihop 255
 neighbor 10.10.4.5 soft-reconfiguration inbound
-neighbor 169.254.21.2 remote-as 65001
-neighbor 169.254.21.2 ebgp-multihop 255
-neighbor 169.254.21.2 update-source Loopback0
-neighbor 169.254.21.2 soft-reconfiguration inbound
-neighbor 169.254.21.6 remote-as 65001
-neighbor 169.254.21.6 ebgp-multihop 255
-neighbor 169.254.21.6 update-source Loopback0
-neighbor 169.254.21.6 soft-reconfiguration inbound
+ neighbor 169.254.21.2 remote-as 65001
+ neighbor 169.254.21.2 ebgp-multihop 255
+ neighbor 169.254.21.2 update-source Loopback0
+ neighbor 169.254.21.2 soft-reconfiguration inbound
+ neighbor 169.254.21.6 remote-as 65001
+ neighbor 169.254.21.6 ebgp-multihop 255
+ neighbor 169.254.21.6 update-source Loopback0
+ neighbor 169.254.21.6 soft-reconfiguration inbound
 
 
